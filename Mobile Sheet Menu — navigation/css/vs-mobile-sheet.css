@@ -1,0 +1,114 @@
+/* vs-mobile-sheet — a phone menu as a bottom sheet (vividsites component, kept verbatim).
+   Customise through the variables in the first rule only. */
+
+.vs-mobile-sheet, .vs-mobile-sheet-trigger {
+  --vs-mobile-sheet-accent: #2f8a5b;          /* CTA fill, current-page dot */
+  --vs-mobile-sheet-on-accent: #f6fbf7;
+  --vs-mobile-sheet-bg: #f7f5f0;              /* the sheet */
+  --vs-mobile-sheet-ink: #15170f;
+  --vs-mobile-sheet-line: rgba(21,23,15,.09);
+  --vs-mobile-sheet-dim: 0,0,0;               /* backdrop rgb */
+  --vs-mobile-sheet-radius: 28px;
+  --vs-mobile-sheet-font: "General Sans", ui-sans-serif, -apple-system, system-ui, sans-serif;
+  --vs-mobile-sheet-pad: 160px;               /* hidden overshoot below the screen edge */
+}
+.vs-mobile-sheet--dark, .vs-mobile-sheet-trigger.vs-mobile-sheet--dark {
+  --vs-mobile-sheet-bg: #141615; --vs-mobile-sheet-ink: #efeee8; --vs-mobile-sheet-line: rgba(255,255,255,.085);
+}
+.vs-mobile-sheet { position: fixed; inset: 0; z-index: 1000; overflow: hidden; font-family: var(--vs-mobile-sheet-font); -webkit-font-smoothing: antialiased; }
+.vs-mobile-sheet[hidden] { display: none; }
+.vs-mobile-sheet *, .vs-mobile-sheet *::before, .vs-mobile-sheet *::after { box-sizing: border-box; }
+.vs-mobile-sheet-backdrop { position: absolute; inset: 0; background: rgb(var(--vs-mobile-sheet-dim)); opacity: 0; will-change: opacity; -webkit-tap-highlight-color: transparent; }
+.vs-mobile-sheet-panel {
+  position: absolute; left: 0; right: 0; bottom: calc(-1 * var(--vs-mobile-sheet-pad)); margin: 0 auto; max-width: 560px;
+  padding: 0 20px calc(var(--vs-mobile-sheet-pad) + 16px + env(safe-area-inset-bottom, 0px));
+  border-radius: var(--vs-mobile-sheet-radius) var(--vs-mobile-sheet-radius) 0 0; outline: none;
+  color: var(--vs-mobile-sheet-ink); background: var(--vs-mobile-sheet-bg);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.85), inset 0 0 0 .5px rgba(0,0,0,.05),
+              0 -1px 3px rgba(0,0,0,.05), 0 -18px 48px -12px rgba(0,0,0,.28);
+  touch-action: none; user-select: none; -webkit-user-select: none; will-change: transform;
+  transform: translate3d(0, 110%, 0);
+}
+.vs-mobile-sheet--dark .vs-mobile-sheet-panel { box-shadow: inset 0 1px 0 rgba(255,255,255,.08), inset 0 0 0 .5px rgba(255,255,255,.06), 0 -18px 48px -12px rgba(0,0,0,.6); }
+.vs-mobile-sheet-handle {
+  all: unset; box-sizing: border-box; display: block; width: 100%; height: 26px; cursor: grab; position: relative; border-radius: 12px;
+}
+.vs-mobile-sheet-handle::before {
+  content: ""; position: absolute; left: 50%; top: 10px; width: 38px; height: 5px; margin-left: -19px; border-radius: 3px;
+  background: color-mix(in srgb, var(--vs-mobile-sheet-ink) 20%, transparent);
+  transform: scaleX(var(--grab, 1)); transition: transform .3s cubic-bezier(.3,1.5,.5,1), background .2s;
+}
+.vs-mobile-sheet.is-dragging .vs-mobile-sheet-handle::before { --grab: 1.22; background: color-mix(in srgb, var(--vs-mobile-sheet-ink) 34%, transparent); }
+.vs-mobile-sheet.is-dragging .vs-mobile-sheet-handle { cursor: grabbing; }
+.vs-mobile-sheet-handle:focus-visible::before { box-shadow: 0 0 0 3px var(--vs-mobile-sheet-bg), 0 0 0 4.5px var(--vs-mobile-sheet-accent); }
+.vs-mobile-sheet-head { display: flex; align-items: center; justify-content: space-between; height: 44px; margin: -2px 0 6px; }
+.vs-mobile-sheet-label { font-size: 12px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--vs-mobile-sheet-ink) 46%, transparent); }
+.vs-mobile-sheet-close {
+  all: unset; box-sizing: border-box; display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; cursor: pointer;
+  color: var(--vs-mobile-sheet-ink); background: color-mix(in srgb, var(--vs-mobile-sheet-ink) 6%, transparent);
+  transition: background .15s cubic-bezier(.2,0,0,1), transform .25s cubic-bezier(.3,1.5,.5,1);
+}
+.vs-mobile-sheet-close:hover { background: color-mix(in srgb, var(--vs-mobile-sheet-ink) 10%, transparent); }
+.vs-mobile-sheet-close:active { transform: scale(.9); }
+.vs-mobile-sheet-close:focus-visible { box-shadow: 0 0 0 2px var(--vs-mobile-sheet-bg), 0 0 0 3.5px var(--vs-mobile-sheet-accent); }
+.vs-mobile-sheet-close svg { width: 14px; height: 14px; }
+.vs-mobile-sheet-nav { display: grid; }
+.vs-mobile-sheet-link {
+  position: relative; display: grid; grid-template-columns: 34px 1fr auto; align-items: center; height: 64px; padding: 0 4px;
+  color: inherit; text-decoration: none; font-size: 34px; font-weight: 500; letter-spacing: -.035em; line-height: 1;
+  border-radius: 14px; -webkit-tap-highlight-color: transparent; outline: none;
+  box-shadow: 0 .5px 0 var(--vs-mobile-sheet-line); will-change: transform, opacity;
+}
+.vs-mobile-sheet-link:last-child { box-shadow: none; }
+.vs-mobile-sheet-link::before {
+  content: ""; position: absolute; inset: 4px -8px; border-radius: 14px; z-index: -1;
+  background: color-mix(in srgb, var(--vs-mobile-sheet-ink) 5%, transparent); opacity: 0; transform: scale(.97);
+  transition: opacity .15s cubic-bezier(.2,0,0,1), transform .3s cubic-bezier(.3,1.4,.5,1);
+}
+.vs-mobile-sheet-nav { position: relative; z-index: 0; }
+.vs-mobile-sheet-link:hover::before { opacity: .6; transform: none; }
+.vs-mobile-sheet-link:active::before { opacity: 1; transform: none; }
+.vs-mobile-sheet-link:focus-visible::before { opacity: 1; transform: none; box-shadow: inset 0 0 0 1.5px var(--vs-mobile-sheet-accent); }
+.vs-mobile-sheet-idx { font-size: 11px; font-weight: 500; letter-spacing: .04em; font-variant-numeric: tabular-nums; align-self: start; margin-top: 18px; color: color-mix(in srgb, var(--vs-mobile-sheet-ink) 40%, transparent); }
+.vs-mobile-sheet-text { display: inline-flex; align-items: center; gap: 12px; transition: transform .3s cubic-bezier(.3,1.4,.5,1); }
+.vs-mobile-sheet-link:hover .vs-mobile-sheet-text, .vs-mobile-sheet-link:active .vs-mobile-sheet-text { transform: translateX(4px); }
+.vs-mobile-sheet-link[aria-current="page"] .vs-mobile-sheet-text::after {
+  content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--vs-mobile-sheet-accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--vs-mobile-sheet-accent) 18%, transparent);
+}
+.vs-mobile-sheet-arrow { width: 18px; height: 18px; opacity: .28; transition: opacity .15s, transform .3s cubic-bezier(.3,1.4,.5,1); }
+.vs-mobile-sheet-link:hover .vs-mobile-sheet-arrow, .vs-mobile-sheet-link:active .vs-mobile-sheet-arrow { opacity: .9; transform: translate(2px,-2px); }
+.vs-mobile-sheet-more { display: grid; gap: 18px; padding-top: 22px; }
+.vs-mobile-sheet-cta {
+  display: flex; align-items: center; justify-content: space-between; height: 58px; padding: 0 10px 0 22px; border-radius: 999px;
+  color: var(--vs-mobile-sheet-on-accent); background: var(--vs-mobile-sheet-accent); text-decoration: none;
+  font-size: 17px; font-weight: 500; letter-spacing: -.01em; will-change: transform, opacity; -webkit-tap-highlight-color: transparent; outline: none;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), inset 0 -1px 0 rgba(0,0,0,.12), 0 1px 2px rgba(0,0,0,.12), 0 10px 24px -10px color-mix(in srgb, var(--vs-mobile-sheet-accent) 80%, #000);
+}
+.vs-mobile-sheet-cta i { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,.16); transition: transform .3s cubic-bezier(.3,1.4,.5,1); }
+.vs-mobile-sheet-cta i svg { width: 16px; height: 16px; }
+.vs-mobile-sheet-cta:hover i { transform: translateX(3px); }
+.vs-mobile-sheet-cta:active { filter: brightness(.94); }
+.vs-mobile-sheet-cta:focus-visible { box-shadow: 0 0 0 2px var(--vs-mobile-sheet-bg), 0 0 0 4px var(--vs-mobile-sheet-accent); }
+.vs-mobile-sheet-minor { display: flex; gap: 22px; padding: 2px 4px 0; will-change: transform, opacity; }
+.vs-mobile-sheet-minor a { color: color-mix(in srgb, var(--vs-mobile-sheet-ink) 52%, transparent); text-decoration: none; font-size: 15px; font-weight: 500; outline: none; border-radius: 4px; transition: color .15s; }
+.vs-mobile-sheet-minor a:hover { color: var(--vs-mobile-sheet-ink); }
+.vs-mobile-sheet-minor a:focus-visible { box-shadow: 0 0 0 2px var(--vs-mobile-sheet-accent); }
+
+/* the trigger (lives in your page) */
+.vs-mobile-sheet-trigger {
+  all: unset; box-sizing: border-box; position: relative; display: inline-grid; place-items: center; width: 46px; height: 46px; border-radius: 50%; cursor: pointer;
+  background: var(--vs-mobile-sheet-bg); color: var(--vs-mobile-sheet-ink); -webkit-tap-highlight-color: transparent;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.8), 0 0 0 .5px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.08), 0 6px 16px -6px rgba(0,0,0,.22);
+  transition: transform .3s cubic-bezier(.3,1.5,.5,1);
+}
+.vs-mobile-sheet-trigger span { position: absolute; left: 14px; right: 14px; height: 1.6px; border-radius: 1px; background: currentColor; transition: transform .3s cubic-bezier(.3,1.5,.5,1); }
+.vs-mobile-sheet-trigger span:first-child { transform: translateY(-3.5px); }
+.vs-mobile-sheet-trigger span:last-child { transform: translateY(3.5px); }
+.vs-mobile-sheet-trigger:hover span:first-child { transform: translateY(-4.5px); }
+.vs-mobile-sheet-trigger:hover span:last-child { transform: translateY(4.5px) scaleX(.7); transform-origin: right; }
+.vs-mobile-sheet-trigger:active { transform: scale(.92); }
+.vs-mobile-sheet-trigger:focus-visible { box-shadow: 0 0 0 2px var(--vs-mobile-sheet-bg), 0 0 0 4px var(--vs-mobile-sheet-accent); }
+.vs-mobile-sheet-trigger:disabled { opacity: .4; cursor: not-allowed; }
+@media (prefers-reduced-motion: reduce) { .vs-mobile-sheet *, .vs-mobile-sheet-trigger, .vs-mobile-sheet-trigger span { transition: none !important; } }
+@media (forced-colors: active) { .vs-mobile-sheet-panel { border: 1px solid CanvasText; } }

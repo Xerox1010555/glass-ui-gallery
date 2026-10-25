@@ -1,0 +1,70 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Floating Chat - الأقسام</title>
+<style>
+  :root{--bg:#121620;--panel:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.14);--accent:#7dd3fc;--secondary:#34d399;--text:#f8fafc;--dim:#cbd5e1}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Segoe UI",Tahoma,sans-serif;direction:rtl;overflow-x:hidden}
+  .bg{position:fixed;inset:0;z-index:0;background:radial-gradient(circle at 20% 30%,rgba(125,211,252,0.10)0%,transparent 40%),radial-gradient(circle at 80% 70%,rgba(52,211,153,0.09)0%,transparent 40%);background-size:200% 200%;animation:bgm 14s ease infinite;overflow:hidden}
+  @keyframes bgm{0%,100%{background-position:0% 0%}50%{background-position:100% 100%}}
+  header{position:relative;z-index:10;padding:30px 20px 10px;text-align:center}
+  header h1{font-size:2rem;font-weight:900;margin-bottom:6px;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--secondary) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  header p{color:var(--dim);font-size:0.95rem;margin-top:4px}
+  .container{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:20px 20px 110px}
+  .card{background:var(--panel);backdrop-filter:blur(20px)saturate(200%);-webkit-backdrop-filter:blur(20px)saturate(200%);border:1px solid var(--border);border-radius:24px;padding:32px 24px;box-shadow:0 24px 48px rgba(0,0,0,0.45)}
+  .back{display:inline-block;margin-top:24px;color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent);font-size:0.95rem;padding-bottom:2px;transition:0.2s}
+  .back:hover{color:#fff;border-color:#fff}
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <header><h1>Floating Chat</h1><p>مكون من مشروع الأقسام</p></header>
+  <div class="container">
+    <div class="card" style="text-align:center">
+      <div style="font-size:3rem;margin-bottom:16px">💬</div>
+      <h2 style="font-size:1.6rem;margin-bottom:12px">نافذة دردشة عائمة</h2>
+      <p style="color:var(--dim);margin-bottom:20px">أيقونة دردشة تفتح نافذة محادثة عند الضغط</p>
+      <div style="position:relative;display:inline-block">
+        <button id="chatBtn" style="background:var(--accent);color:#0b1120;border:none;width:56px;height:56px;border-radius:50%;font-size:1.8rem;cursor:pointer;box-shadow:0 0 25px rgba(125,211,252,0.5)">💬</button>
+        <div id="chatBox" style="position:absolute;bottom:70px;right:0;width:300px;height:400px;background:var(--panel);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border:1px solid var(--border);border-radius:16px;padding:16px;display:none;flex-direction:column;gap:10px;z-index:100;box-shadow:0 20px 40px rgba(0,0,0,0.45)">
+          <div style="font-weight:800;color:#fff;border-bottom:1px solid rgba(255,255,255,0.15);padding-bottom:8px">الدعم الفني</div>
+          <div id="chatMsgs" style="flex:1;overflow-y:auto;font-size:0.9rem;color:var(--text-dim);display:flex;flex-direction:column;gap:8px"></div>
+          <div style="display:flex;gap:8px">
+            <input id="chatIn" type="text" placeholder="اكتب رسالتك..." style="flex:1;background:rgba(0,0,0,0.3);border:1px solid var(--border);border-radius:10px;color:#fff;padding:8px 12px">
+            <button id="chatSend" style="background:var(--secondary);color:#0b1120;border:none;border-radius:10px;padding:8px 14px;font-weight:800;cursor:pointer">إرسال</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <a href="../index.html" class="back">العودة للواجهة الرئيسية</a>
+  </div>
+  <script>
+    var btn=document.getElementById('chatBtn');
+    var box=document.getElementById('chatBox');
+    var msgs=document.getElementById('chatMsgs');
+    var input=document.getElementById('chatIn');
+    var send=document.getElementById('chatSend');
+    var open=false;
+    btn.onclick=function(){open=!open;box.style.display=open?'flex':'none'};
+    function add(msg,who){
+      var d=document.createElement('div');
+      d.style.background=who==='me'?'var(--accent)':'rgba(255,255,255,0.08)';
+      d.style.color=who==='me'?'#0b1120':'#fff';
+      d.style.padding='8px 12px';d.style.borderRadius='12px';d.style.maxWidth='80%';
+      d.style.alignSelf=who==='me'?'flex-end':'flex-start';
+      d.textContent=msg;
+      msgs.appendChild(d);
+      msgs.scrollTop=msgs.scrollHeight;
+    }
+    send.onclick=function(){
+      if(!input.value.trim())return;
+      add(input.value,'me');
+      input.value='';
+      setTimeout(function(){add('تم استلام رسالتك، سنرد عليك قريباً.','bot')},800);
+    };
+  </script>
+</body>
+</html>

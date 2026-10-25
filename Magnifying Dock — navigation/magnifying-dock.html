@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Magnifying Dock</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --vs-dock-size: 62px;
+        --vs-dock-shelf: rgba(255, 255, 255, 0.68);
+        --vs-dock-shelf-line: rgba(255, 255, 255, 0.54);
+        --vs-dock-tip-bg: rgba(255, 255, 255, 0.72);
+        --vs-dock-tip-ink: #1b1d24;
+        --vs-dock-dot: #ff5a3c;
+        --vs-dock-focus: rgba(111, 153, 255, 0.9);
+        --vs-dock-font: "Inter Tight", "Segoe UI", sans-serif;
+      }
+
+      * { box-sizing: border-box; }
+
+      html, body {
+        margin: 0;
+        min-height: 100%;
+        font-family: var(--vs-dock-font);
+        background:
+          radial-gradient(circle at top, rgba(159, 185, 255, 0.24), transparent 42%),
+          linear-gradient(180deg, #edf3ff 0%, #e6edf8 42%, #dfe8f3 100%);
+      }
+
+      body {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+
+      .demo-wrap {
+        width: min(390px, 100%);
+        padding: 24px 12px 14px;
+        border-radius: 30px;
+        background: rgba(255, 255, 255, 0.24);
+        border: 1px solid rgba(148, 163, 184, 0.18);
+        box-shadow: 0 32px 80px -42px rgba(15, 23, 42, 0.42);
+        backdrop-filter: blur(16px);
+      }
+
+      .demo-header {
+        padding: 0 10px 14px;
+      }
+
+      .eyebrow {
+        display: inline-block;
+        font-size: 10px;
+        line-height: 1;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: rgba(33, 41, 57, 0.7);
+      }
+
+      .demo-header h1 {
+        margin: 8px 0 0;
+        font-size: clamp(1.7rem, 4vw, 2.2rem);
+        letter-spacing: -0.06em;
+        color: #101827;
+      }
+
+      .demo-header p {
+        margin: 8px 0 0;
+        font-size: 0.94rem;
+        line-height: 1.5;
+        color: rgba(17, 24, 39, 0.72);
+      }
+
+      .vs-dock {
+        --vs-dock-size: 62px;
+        --vs-dock-shelf: rgba(255, 255, 255, 0.7);
+        --vs-dock-shelf-line: rgba(255, 255, 255, 0.9);
+        --vs-dock-tip-bg: rgba(255, 255, 255, 0.72);
+        --vs-dock-tip-ink: #1c1f2a;
+        --vs-dock-dot: #ff5a3c;
+        --vs-dock-focus: rgba(127, 175, 255, 0.74);
+        --vs-dock-font: "Inter Tight", "Segoe UI", sans-serif;
+        position: relative;
+        display: block;
+        width: 100%;
+        margin: 14px auto 0;
+        user-select: none;
+        touch-action: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+
+      .vs-dock-list {
+        position: relative;
+        display: flex;
+        align-items: flex-end;
+        gap: 0;
+        padding: 0;
+        margin: 0;
+        list-style: none;
+        height: calc(var(--vs-dock-size) * 1.9);
+      }
+
+      .vs-dock-item {
+        position: relative;
+        display: block;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        flex: 0 0 auto;
+        will-change: transform;
+      }
+
+      .vs-dock-sep {
+        width: 0;
+        height: 34px;
+        margin: 0 4px;
+        position: relative;
+        flex: 0 0 auto;
+      }
+
+      .vs-dock-sep::before {
+        content: "";
+        position: absolute;
+        inset: 0 0 0 50%;
+        width: 1px;
+        height: 100%;
+        background: rgba(148, 163, 184, 0.4);
+        transform: translateX(-50%);
+      }
+
+      .vs-dock-shelf {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: calc(var(--vs-dock-size) * 0.42);
+        border-radius: 999px;
+        background: linear-gradient(180deg, rgba(255,255,255,0.78), rgba(255,255,255,0.62));
+        border: 1px solid var(--vs-dock-shelf-line);
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.9), 0 12px 30px -20px rgba(15,23,42,0.45);
+        transform-origin: left center;
+        pointer-events: none;
+        will-change: width, transform;
+      }
+
+      .vs-dock-btn {
+        position: relative;
+        display: block;
+        width: var(--vs-dock-size);
+        height: var(--vs-dock-size);
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: none;
+        color: inherit;
+        cursor: pointer;
+        border-radius: 24px;
+        appearance: none;
+        transform-origin: center bottom;
+        will-change: transform;
+      }
+
+      .vs-dock-btn:focus-visible {
+        outline: none;
+      }
+
+      .vs-dock-tile {
+        position: absolute;
+        inset: 0;
+        display: block;
+        background: var(--g);
+        border-radius: 22px;
+        box-shadow: inset 0 1px 0 rgba(255,255,255,0.6), 0 8px 16px -10px rgba(24,39,75,0.42), 0 8px 18px -12px rgba(24,39,75,0.18);
+        overflow: hidden;
+        transform-origin: center bottom;
+        transition: box-shadow 160ms ease;
+      }
+
+      .vs-dock-tile svg {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        display: block;
+        z-index: 1;
+      }
+
+      .vs-dock-item[data-running="true"] .vs-dock-dot,
+      .vs-dock-item[data-running] .vs-dock-dot {
+        opacity: 1;
+      }
+
+      .vs-dock-shade {
+        position: absolute;
+        inset: 0;
+        z-index: 4;
+        background: rgba(0, 0, 0, 0.12);
+        opacity: 0;
+        pointer-events: none;
+        border-radius: inherit;
+      }
+
+      .vs-dock-btn:focus-visible .vs-dock-tile {
+        box-shadow: inset 0 0.012em 0 rgba(255,255,255,0.55), 0 0 0 0.025em #fff, 0 0 0 0.05em var(--vs-dock-focus), 0 0.06em 0.12em -0.03em rgba(40,20,8,0.3);
+      }
+
+      .vs-dock-btn[aria-disabled="true"] { cursor: not-allowed; }
+      .vs-dock-btn[aria-disabled="true"] .vs-dock-tile { opacity: 0.45; }
+
+      .vs-dock-dot {
+        position: absolute;
+        left: 50%;
+        bottom: calc(var(--pad) * -.62);
+        width: 4px;
+        height: 4px;
+        margin: -2px 0 0 -2px;
+        border-radius: 50%;
+        background: var(--vs-dock-dot);
+        opacity: 0;
+        pointer-events: none;
+        box-shadow: 0 0 0 .5px rgba(255,255,255,0.25);
+      }
+
+      .vs-dock-tip {
+        position: absolute;
+        left: 50%;
+        bottom: 0;
+        padding: 6px 10px 6px;
+        border-radius: 8px;
+        white-space: nowrap;
+        font: 500 13px/1 var(--vs-dock-font);
+        letter-spacing: -0.01em;
+        color: var(--vs-dock-tip-ink);
+        background: var(--vs-dock-tip-bg);
+        -webkit-backdrop-filter: blur(14px) saturate(1.6);
+        backdrop-filter: blur(14px) saturate(1.6);
+        box-shadow: inset 0 0 0 .5px rgba(255,255,255,0.5), 0 0 0 .5px rgba(0,0,0,0.08), 0 6px 16px -6px rgba(40,20,8,0.35), 0 1px 3px rgba(40,20,8,0.12);
+        opacity: 0;
+        pointer-events: none;
+        transform-origin: 50% 100%;
+        will-change: transform, opacity;
+      }
+
+      .vs-dock--dark .vs-dock-tip {
+        box-shadow: inset 0 0 0 .5px rgba(255,255,255,0.12), 0 0 0 .5px rgba(0,0,0,0.4), 0 8px 18px -6px rgba(0,0,0,0.5);
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        .vs-dock *, .vs-dock *::before, .vs-dock *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+          scroll-behavior: auto !important;
+        }
+      }
+
+      @media (forced-colors: active) {
+        .vs-dock-shelf { border: 1px solid CanvasText; }
+        .vs-dock-tip { border: 1px solid CanvasText; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="demo-wrap">
+      <header class="demo-header">
+        <span class="eyebrow">Workspace</span>
+        <h1>Quick access</h1>
+        <p>Move through your most-used tools without leaving the page.</p>
+      </header>
+
+      <nav class="vs-dock" aria-label="Dock" data-magnify="1.9" data-range="3">
+        <ul class="vs-dock-list">
+          <li class="vs-dock-item" data-running>
+            <button class="vs-dock-btn" aria-label="Overview">
+              <span class="vs-dock-tile" style="--g:linear-gradient(165deg,#69d9ff,#1b85da)">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                  <rect x="22" y="28" width="56" height="42" rx="12" fill="rgba(255,255,255,0.28)"/>
+                  <path d="M30 62l15-18 12 15 18-27" fill="none" stroke="#fff" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </button>
+          </li>
+          <li class="vs-dock-item">
+            <button class="vs-dock-btn" aria-label="Inbox">
+              <span class="vs-dock-tile" style="--g:linear-gradient(170deg,#eef7ff,#d7dfe8)">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                  <rect x="22" y="26" width="56" height="48" rx="14" fill="rgba(255,255,255,0.38)"/>
+                  <path d="M30 38h40M30 52h28M30 66h34" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+                </svg>
+              </span>
+            </button>
+          </li>
+          <li class="vs-dock-item">
+            <button class="vs-dock-btn" aria-label="Tasks">
+              <span class="vs-dock-tile" style="--g:linear-gradient(170deg,#fff3d4,#f2d58c)">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                  <path d="M66 18h16v32l-8-7-8 7z" fill="#ff6b45"/>
+                  <g stroke="#8c6a26" stroke-width="5" stroke-linecap="round" opacity="0.55">
+                    <path d="M22 46h52M22 60h52M22 74h36"/>
+                  </g>
+                </svg>
+              </span>
+            </button>
+          </li>
+          <li class="vs-dock-item" data-running>
+            <button class="vs-dock-btn" aria-label="Calendar">
+              <span class="vs-dock-tile" style="--g:linear-gradient(165deg,#2f3658,#141b2c)">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                  <rect x="22" y="26" width="56" height="52" rx="12" fill="rgba(255,255,255,0.12)"/>
+                  <path d="M30 42h40M36 20v14M64 20v14" stroke="#ffffff" stroke-width="7" stroke-linecap="round"/>
+                  <circle cx="50" cy="58" r="13" fill="rgba(255,255,255,0.26)"/>
+                </svg>
+              </span>
+            </button>
+          </li>
+          <li class="vs-dock-item">
+            <button class="vs-dock-btn" aria-label="Notes">
+              <span class="vs-dock-tile" style="--g:linear-gradient(165deg,#e7f4d7,#bcdba5)">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                  <path d="M26 18h34l16 18v46H26z" fill="rgba(255,255,255,0.35)"/>
+                  <path d="M60 18v18h18" fill="none" stroke="#fff" stroke-width="6"/>
+                  <path d="M36 48h28M36 62h24M36 76h20" stroke="#fff" stroke-width="7" stroke-linecap="round"/>
+                </svg>
+              </span>
+            </button>
+          </li>
+          <li class="vs-dock-item"><button class="vs-dock-btn" aria-label="Files"><span class="vs-dock-tile" style="--g:linear-gradient(160deg,#ffa27c,#e3405e)"><svg viewBox="0 0 100 100" aria-hidden="true"><g fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round"><path d="M18 36c8-7 16-7 24 0s16 7 24 0 16-7 16-7" opacity=".42"/><path d="M18 52c8-7 16-7 24 0s16 7 24 0 16-7 16-7"/><path d="M18 68c8-7 16-7 24 0s16 7 24 0 16-7 16-7" opacity=".68"/></g></svg></span></button></li>
+          <li class="vs-dock-item">
+            <button class="vs-dock-btn" aria-label="Reports">
+              <span class="vs-dock-tile" style="--g:linear-gradient(165deg,#2f343d,#14171d)">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                  <path d="M22 76h56" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
+                  <g fill="#d6ff7c">
+                    <rect x="24" y="55" width="10" height="18" rx="3"/>
+                    <rect x="40" y="42" width="10" height="31" rx="3"/>
+                    <rect x="56" y="50" width="10" height="23" rx="3"/>
+                    <rect x="72" y="28" width="10" height="45" rx="3"/>
+                  </g>
+                </svg>
+              </span>
+            </button>
+          </li>
+          <li class="vs-dock-item">
+            <button class="vs-dock-btn" aria-label="Settings">
+              <span class="vs-dock-tile" style="--g:linear-gradient(165deg,#f2f4f7,#b4bbc7)">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                  <g stroke="#3d4756" stroke-width="4.5" stroke-linecap="round" opacity="0.38">
+                    <path d="M24 32h52M24 50h52M24 68h52"/>
+                  </g>
+                  <circle cx="50" cy="50" r="9" fill="#ff5a3c"/>
+                  <circle cx="50" cy="50" r="3.4" fill="#fff"/>
+                </svg>
+              </span>
+            </button>
+          </li>
+        </ul>
+      </nav>
+    </main>
+
+    <script>
+      (() => {
+        if (window.vsDock) return;
+        const reduce = matchMedia('(prefers-reduced-motion: reduce)');
+        const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+
+        const live = new Set();
+        let raf = 0, last = 0;
+        const tick = now => {
+          const dt = Math.min(.064, (now - last) / 1000 || .016);
+          last = now;
+          for (const d of live) {
+            let keep = false;
+            try { keep = d.update(dt); } catch (e) { console.error(e); }
+            if (!keep) live.delete(d);
+          }
+          raf = live.size ? requestAnimationFrame(tick) : 0;
+        };
+        const wake = d => {
+          live.add(d);
+          if (!raf) {
+            last = performance.now();
+            raf = requestAnimationFrame(tick);
+          }
+        };
+
+        const S = (x, k, z) => ({ x, v: 0, g: x, k, c: 2 * Math.sqrt(k) * z });
+        const run = (s, n, h, eps) => {
+          if (Math.abs(s.v) < eps && Math.abs(s.x - s.g) < eps) {
+            s.x = s.g; s.v = 0; return false;
+          }
+          if (reduce.matches) { s.x = s.g; s.v = 0; return false; }
+          for (let i = 0; i < n; i++) {
+            s.v += (-s.k * (s.x - s.g) - s.c * s.v) * h;
+            s.x += s.v * h;
+          }
+          return true;
+        };
+
+        function mount(dock) {
+          if (dock.__vsDock) return dock.__vsDock;
+
+          const list = dock.querySelector('.vs-dock-list');
+          let shelf = dock.querySelector('.vs-dock-shelf');
+          if (!shelf) {
+            shelf = document.createElement('div');
+            shelf.className = 'vs-dock-shelf';
+            shelf.setAttribute('aria-hidden', 'true');
+            dock.prepend(shelf);
+          }
+
+          list.setAttribute('role', 'toolbar');
+          if (!list.hasAttribute('aria-label')) list.setAttribute('aria-label', dock.getAttribute('aria-label') || 'Dock');
+
+          let items = [], apps = [];
+          function collect() {
+            items = [...list.children].filter(li => !li.hidden && getComputedStyle(li).display !== 'none').map(li => {
+              if (li.__vsd) return li.__vsd;
+              const sep = li.classList.contains('vs-dock-sep');
+              const d = { li, sep, s: 1 };
+              if (sep) {
+                li.setAttribute('role', 'separator');
+                li.setAttribute('aria-orientation', 'vertical');
+              } else {
+                const btn = d.btn = li.querySelector('.vs-dock-btn');
+                const label = btn.dataset.label || btn.getAttribute('aria-label') || btn.textContent.trim();
+                btn.setAttribute('aria-label', label);
+                if (btn.tagName === 'BUTTON') btn.type = 'button';
+                d.tile = btn.querySelector('.vs-dock-tile');
+                d.shade = Object.assign(document.createElement('span'), { className: 'vs-dock-shade' });
+                d.tile.append(d.shade);
+                d.tip = Object.assign(document.createElement('span'), { className: 'vs-dock-tip', textContent: label });
+                d.tip.setAttribute('aria-hidden', 'true');
+                d.dot = Object.assign(document.createElement('span'), { className: 'vs-dock-dot' });
+                d.dot.setAttribute('aria-hidden', 'true');
+                li.append(d.tip, d.dot);
+                d.running = li.hasAttribute('data-running');
+                d.tipS = S(0, 460, .74);
+                d.dotS = S(d.running ? 1 : 0, 320, .55);
+                d.press = S(0, 900, .9);
+                d.sq = S(0, 620, .3);
+                d.hop = { y: 0, v: 0, v0: 0, left: 0, air: false, launching: false };
+              }
+              li.__vsd = d;
+              return d;
+            });
+
+            apps = items.filter(d => !d.sep);
+            const cur = apps.find(d => d.btn.tabIndex === 0) || apps.find(d => d.btn.getAttribute('aria-disabled') !== 'true') || apps[0];
+            apps.forEach(d => d.btn.tabIndex = d === cur ? 0 : -1);
+          }
+
+          let T = 64, M = 1.9, R = 3, G = 9, P = 10, SW = 20, W0 = 0, restLeft = 0, GRAV = 2800, Lb = -1e5, Rb = 1e5;
+
+          function measure() {
+            collect();
+            if (!items.length) return;
+
+            const want = parseFloat(dock.dataset.size) || parseFloat(getComputedStyle(dock).getPropertyValue('--vs-dock-size')) || 64;
+            M = clamp(parseFloat(dock.dataset.magnify || 1.9) || 1, 1, 3.2);
+            R = clamp(parseFloat(dock.dataset.range || 3) || 3, .5, 8);
+
+            let x = .16; const cs = [];
+            for (const d of items) {
+              const w = d.sep ? .32 : 1;
+              if (!d.sep) cs.push(x + w / 2);
+              x += w + .14;
+            }
+
+            const units = x - .14 + .16;
+            let F = 0;
+            for (const p of cs) {
+              let f = 0;
+              for (const c of cs) {
+                const q = Math.abs(p - c) / (R * 1.14);
+                if (q < 1) f += (1 + Math.cos(Math.PI * q)) / 2;
+              }
+              F = Math.max(F, f);
+            }
+
+            const need = units + (M - 1) * F;
+            const host = dock.parentElement || document.body;
+            const hs = getComputedStyle(host);
+            const pl = parseFloat(hs.paddingLeft) || 0;
+            const pr = parseFloat(hs.paddingRight) || 0;
+            const w1 = host.clientWidth;
+            dock.style.width = '0px';
+            const wrap = host.clientWidth !== w1;
+            const hr = host.getBoundingClientRect();
+            let bl = hr.left + pl, br = hr.right - pr;
+            if (wrap || br - bl < 40) {
+              bl = 16; br = innerWidth - 16;
+            }
+
+            T = clamp(Math.min(want, (br - bl) / need), 16, want);
+            G = T * .14; P = T * .16; SW = T * .32; GRAV = 44 * T;
+
+            x = P;
+            for (const d of items) {
+              const w = d.sep ? SW : T;
+              d.r0 = x;
+              d.rw = w;
+              d.c = x + w / 2;
+              x += w + G;
+            }
+
+            W0 = x - G + P;
+            dock.style.width = W0 + 'px';
+            dock.style.height = (T + 2 * P) + 'px';
+            const dr = dock.getBoundingClientRect();
+            restLeft = 0;
+            Lb = bl - dr.left;
+            Rb = br - dr.left;
+            dock.style.setProperty('--t', T + 'px');
+            dock.style.setProperty('--tm', (T * M) + 'px');
+            dock.style.setProperty('--pad', P + 'px');
+            layout();
+            wake(api);
+          }
+
+          const ptr = S(0, 520, .9), pres = S(0, 240, .92);
+          let rawX = -1e4, inside = false, touching = false, focusD = null, pressD = null, touchT = 0;
+          let lastO = 0;
+
+          const hoveredApp = () => {
+            if (focusD && !inside && !touching) return focusD;
+            if (!inside && !touching) return null;
+            const X = rawX + restLeft - lastO;
+            for (const d of apps) if (X >= d.x - G / 2 && X <= d.x + d.w + G / 2) return d;
+            return null;
+          };
+
+          function layout() {
+            const m = Math.max(0, pres.x), p = ptr.x, span = R * (T + G), TM = T * M;
+            let x = P;
+            for (const d of items) {
+              let s = 1;
+              if (!d.sep && m > 0) {
+                const q = Math.abs(p - d.c) / span;
+                if (q < 1) s = 1 + (M - 1) * m * (1 + Math.cos(Math.PI * q)) / 2;
+              }
+              d.s = s; d.x = x; d.w = d.sep ? SW : T * s; x += d.w + G;
+            }
+
+            const W = x - G + P;
+            let mapped = p;
+            if (m > 0 && p > items[0].r0) {
+              mapped = W - (W0 - p);
+              for (const d of items) {
+                if (p < d.r0 + d.rw) { mapped = d.x + (p - d.r0) * (d.w / d.rw); break; }
+                if (p < d.r0 + d.rw + G) { mapped = d.x + d.w + (p - d.r0 - d.rw); break; }
+              }
+            }
+
+            let o = restLeft + p - mapped;
+            if (W <= Rb - Lb) o = clamp(o, Lb, Rb - W);
+            lastO = o;
+            shelf.style.width = W.toFixed(2) + 'px';
+            shelf.style.transform = `translate3d(${o.toFixed(2)}px,0,0)`;
+
+            for (const d of items) {
+              const cx = o + d.x + d.w / 2;
+              if (d.sep) {
+                d.li.style.transform = `translate3d(${cx.toFixed(2)}px,0,0)`;
+                continue;
+              }
+
+              d.li.style.transform = `translate3d(${(cx - TM / 2).toFixed(2)}px,0,0)`;
+              const hp = d.hop, air = hp.v0 ? clamp(Math.abs(hp.v) / hp.v0, 0, 1) * (hp.air ? .05 : 0) : 0;
+              const k = d.s / M * (1 - .055 * d.press.x);
+              const sy = k * (1 - .11 * d.sq.x + air), sx = k * (1 + .085 * d.sq.x - air * .6);
+              d.btn.style.transform = `translate3d(0,${(-hp.y).toFixed(2)}px,0) scale(${sx.toFixed(4)},${sy.toFixed(4)})`;
+              d.shade.style.opacity = (d.press.x * .2).toFixed(3);
+
+              const t = d.tipS.x;
+              d.tip.style.opacity = clamp(t, 0, 1).toFixed(3);
+              d.tip.style.transform = `translate3d(-50%,${(-(T * d.s) - hp.y - 12 - 8 * (1 - t)).toFixed(2)}px,0) scale(${(.86 + .14 * t).toFixed(4)})`;
+
+              const ds = d.dotS.x;
+              d.dot.style.opacity = clamp(ds, 0, 1).toFixed(3);
+              d.dot.style.transform = `scale(${Math.max(0, ds).toFixed(3)})`;
+            }
+          }
+
+          function launch(d) {
+            if (!d || d.btn.getAttribute('aria-disabled') === 'true') return;
+            const first = !d.running;
+            d.btn.dispatchEvent(new CustomEvent('launch', { bubbles: true, detail: { label: d.btn.getAttribute('aria-label'), running: d.running } }));
+            if (reduce.matches) {
+              d.running = true;
+              d.li.setAttribute('data-running', '');
+              d.dotS.g = 1;
+              wake(api);
+              return;
+            }
+
+            const H = T * (first ? .56 : .3);
+            const hp = d.hop;
+            hp.v0 = Math.sqrt(2 * GRAV * H);
+            hp.v = hp.v0;
+            hp.air = true;
+            hp.left = first ? 1 : 0;
+            hp.launching = first;
+            d.sq.v -= 5;
+            wake(api);
+          }
+
+          function stepHop(d, n, h) {
+            const hp = d.hop; if (!hp.air) return false;
+            for (let i = 0; i < n; i++) {
+              hp.v -= GRAV * h; hp.y += hp.v * h;
+              if (hp.y <= 0 && hp.v < 0) {
+                const impact = -hp.v; hp.y = 0;
+                d.sq.v += 7 * impact / hp.v0;
+                if (hp.left > 0) { hp.left--; hp.v = hp.v0; }
+                else if (impact > hp.v0 * .4) hp.v = impact * .26;
+                else {
+                  hp.v = 0; hp.air = false;
+                  if (hp.launching) {
+                    hp.launching = false;
+                    d.running = true;
+                    d.li.setAttribute('data-running', '');
+                    d.dotS.g = 1;
+                  }
+                  break;
+                }
+              }
+            }
+            return hp.air;
+          }
+
+          const api = {
+            el: dock,
+            refresh: measure,
+            launch: i => launch(apps[i]),
+            running(i, on) {
+              const d = apps[i];
+              if (!d) return;
+              d.running = !!on;
+              d.li.toggleAttribute('data-running', !!on);
+              d.dotS.g = on ? 1 : 0;
+              wake(api);
+            },
+            update(dt) {
+              const n = Math.max(1, Math.round(dt * 120)), h = dt / n;
+              const hov = hoveredApp();
+              pres.g = (inside || touching || focusD) ? 1 : 0;
+              let moving = run(ptr, n, h, .02) | run(pres, n, h, .0005);
+
+              for (const d of apps) {
+                d.tipS.g = d === hov && pres.g ? 1 : 0;
+                d.press.g = d === pressD ? 1 : 0;
+                moving |= run(d.tipS, n, h, .002) | run(d.dotS, n, h, .002) | run(d.press, n, h, .002) | run(d.sq, n, h, .001) | stepHop(d, n, h);
+              }
+
+              layout();
+              return !!moving;
+            }
+          };
+
+          const toRest = e => e.clientX - dock.getBoundingClientRect().left - restLeft;
+          function aim(x) {
+            rawX = x;
+            if (pres.x < .04) { ptr.x = x; ptr.v = 0; }
+            ptr.g = x;
+            wake(api);
+          }
+
+          dock.addEventListener('pointermove', e => {
+            if (e.pointerType === 'touch' && !touching) return;
+            if (e.pointerType !== 'touch') inside = true;
+            aim(toRest(e));
+            if (touching) pressD = hoveredApp();
+          });
+
+          dock.addEventListener('pointerleave', e => {
+            if (e.pointerType !== 'touch') {
+              inside = false; pressD = null; wake(api);
+            }
+          });
+
+          dock.addEventListener('pointerdown', e => {
+            if (e.button > 0) return;
+            if (e.pointerType === 'touch') {
+              touching = true;
+              try { dock.setPointerCapture(e.pointerId); } catch (_) {}
+            } else inside = true;
+            aim(toRest(e));
+            pressD = hoveredApp();
+            if (e.pointerType === 'touch' && navigator.vibrate) {
+              try { navigator.vibrate(6); } catch (_) {}
+            }
+          });
+
+          const up = e => {
+            const d = pressD; pressD = null;
+            if (touching) {
+              touching = false;
+              if (e.type === 'pointerup' && d) {
+                touchT = performance.now();
+                launch(d);
+              }
+            }
+            wake(api);
+          };
+
+          dock.addEventListener('pointerup', up);
+          dock.addEventListener('pointercancel', up);
+
+          list.addEventListener('click', e => {
+            const btn = e.target.closest('.vs-dock-btn');
+            if (!btn) return;
+            if (performance.now() - touchT < 600) return;
+            launch(btn.parentElement.__vsd);
+          });
+
+          list.addEventListener('keydown', e => {
+            const i = apps.findIndex(d => d.btn === document.activeElement); if (i < 0) return;
+            const ok = apps.filter(d => d.btn.getAttribute('aria-disabled') !== 'true');
+            const j = ok.indexOf(apps[i]); let t = null;
+            if (e.key === 'ArrowRight' || e.key === 'ArrowDown') t = ok[(j + 1) % ok.length];
+            else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') t = ok[(j - 1 + ok.length) % ok.length];
+            else if (e.key === 'Home') t = ok[0];
+            else if (e.key === 'End') t = ok[ok.length - 1];
+            if (!t) return;
+            e.preventDefault();
+            apps.forEach(d => d.btn.tabIndex = d === t ? 0 : -1);
+            t.btn.focus();
+          });
+
+          list.addEventListener('focusin', e => {
+            const btn = e.target.closest('.vs-dock-btn'); if (!btn) return;
+            apps.forEach(d => d.btn.tabIndex = d.btn === btn ? 0 : -1);
+            if (!btn.matches(':focus-visible')) return;
+            focusD = btn.parentElement.__vsd;
+            if (!inside) aim(focusD.c);
+          });
+
+          list.addEventListener('focusout', e => {
+            if (!list.contains(e.relatedTarget)) {
+              focusD = null;
+              wake(api);
+            }
+          });
+
+          const ro = new ResizeObserver(() => measure());
+          ro.observe(dock.parentElement || document.body);
+          addEventListener('resize', measure);
+          new MutationObserver(measure).observe(dock, { attributes: true, attributeFilter: ['data-magnify', 'data-range', 'data-size', 'class'] });
+          new MutationObserver(() => {
+            items.forEach(d => {
+              if (!d.li.isConnected) delete d.li.__vsd;
+            });
+            measure();
+          }).observe(list, { childList: true, subtree: true, attributes: true, attributeFilter: ['hidden'] });
+
+          if (document.fonts) document.fonts.ready.then(measure);
+          dock.__vsDock = api;
+          measure();
+          return api;
+        }
+
+        const init = () => document.querySelectorAll('.vs-dock').forEach(mount);
+        document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', init) : init();
+        window.vsDock = { mount };
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Activity Heatmap - الأقسام</title>
+<style>
+  :root{--bg:#121620;--panel:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.14);--accent:#7dd3fc;--secondary:#34d399;--text:#f8fafc;--dim:#cbd5e1}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Segoe UI",Tahoma,sans-serif;direction:rtl;overflow-x:hidden}
+  .bg{position:fixed;inset:0;z-index:0;background:radial-gradient(circle at 20% 30%,rgba(125,211,252,0.10)0%,transparent 40%),radial-gradient(circle at 80% 70%,rgba(52,211,153,0.09)0%,transparent 40%);background-size:200% 200%;animation:bgm 14s ease infinite;overflow:hidden}
+  @keyframes bgm{0%,100%{background-position:0% 0%}50%{background-position:100% 100%}}
+  header{position:relative;z-index:10;padding:30px 20px 10px;text-align:center}
+  header h1{font-size:2rem;font-weight:900;margin-bottom:6px;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--secondary) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  header p{color:var(--dim);font-size:0.95rem;margin-top:4px}
+  .container{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:20px 20px 110px}
+  .card{background:var(--panel);backdrop-filter:blur(20px)saturate(200%);-webkit-backdrop-filter:blur(20px)saturate(200%);border:1px solid var(--border);border-radius:24px;padding:32px 24px;box-shadow:0 24px 48px rgba(0,0,0,0.45)}
+  .back{display:inline-block;margin-top:24px;color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent);font-size:0.95rem;padding-bottom:2px;transition:0.2s}
+  .back:hover{color:#fff;border-color:#fff}
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <header><h1>Activity Heatmap</h1><p>مكون من مشروع الأقسام</p></header>
+  <div class="container">
+    <div class="card" style="text-align:center">
+      <div style="font-size:3rem;margin-bottom:16px">🔥</div>
+      <h2 style="font-size:1.6rem;margin-bottom:12px">خريطة النشاط الأسبوعية</h2>
+      <p style="color:var(--dim);margin-bottom:24px">توزيع النشاط حسب الأيام والساعات</p>
+      <div id="hm" style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;max-width:520px;margin:0 auto"></div>
+    </div>
+    <a href="../index.html" class="back">العودة للواجهة الرئيسية</a>
+  </div>
+  <script>
+    const days=['السبت','الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة'];
+    const c=document.getElementById('hm');
+    const lv=['#0f172a','#064e3b','#059669','#34d399','#7dd3fc'];
+    for(let d=0;d<7;d++){
+      const col=document.createElement('div');
+      col.style.display='flex';col.style.flexDirection='column';col.style.alignItems='center';
+      const lbl=document.createElement('div');lbl.textContent=days[d];lbl.style.fontSize='0.75rem';lbl.style.color='var(--dim)';lbl.style.marginBottom='6px';
+      col.appendChild(lbl);
+      for(let h=0;h<12;h++){
+        const cell=document.createElement('div');
+        cell.style.width='22px';cell.style.height='22px';cell.style.borderRadius='4px';
+        cell.style.background=lv[Math.floor(Math.random()*lv.length)];cell.style.marginBottom='4px';
+        cell.title=days[d]+' - الساعة '+(h+1);
+        col.appendChild(cell);
+      }
+      c.appendChild(col);
+    }
+  </script>
+</body>
+</html>

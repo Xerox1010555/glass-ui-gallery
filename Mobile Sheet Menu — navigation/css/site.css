@@ -1,0 +1,138 @@
+/* Site page styles — the menu component lives in vs-mobile-sheet.css.
+   The page behind the sheet needs a dark body background for the recede effect. */
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: #101210;
+  color: #e8eae3;
+  font-family: "General Sans", ui-sans-serif, -apple-system, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* the wrapper that recedes (scale + rounded corners) while the sheet is open */
+[data-vs-mobile-sheet-wrapper] {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: rgba(16, 18, 16, .82);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, .07);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 8px;
+  color: inherit;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 19px;
+  letter-spacing: -.02em;
+}
+
+.brand small {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(232, 234, 227, .45);
+}
+
+main {
+  flex: 1;
+  width: 100%;
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.hero {
+  padding: 72px 0 56px;
+}
+
+.hero h1 {
+  margin: 0 0 16px;
+  font-size: clamp(34px, 9vw, 52px);
+  font-weight: 500;
+  letter-spacing: -.03em;
+  line-height: 1.05;
+}
+
+.hero p {
+  margin: 0;
+  max-width: 46ch;
+  font-size: 17px;
+  line-height: 1.6;
+  color: rgba(232, 234, 227, .68);
+}
+
+section {
+  padding: 48px 0;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+}
+
+section h2 {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin: 0 0 14px;
+  font-size: 26px;
+  font-weight: 500;
+  letter-spacing: -.02em;
+}
+
+section h2 small {
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: .1em;
+  color: rgba(232, 234, 227, .4);
+  font-variant-numeric: tabular-nums;
+}
+
+section p {
+  margin: 0;
+  max-width: 52ch;
+  line-height: 1.65;
+  color: rgba(232, 234, 227, .68);
+}
+
+.card-grid {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.card {
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, .03);
+}
+
+.card h3 { margin: 0 0 6px; font-size: 16px; font-weight: 500; }
+.card p { margin: 0; font-size: 14px; }
+
+.site-footer {
+  padding: 32px 20px 40px;
+  border-top: 1px solid rgba(255, 255, 255, .07);
+  font-size: 14px;
+  color: rgba(232, 234, 227, .45);
+}
+
+@media (min-width: 560px) {
+  .card-grid { grid-template-columns: 1fr 1fr; }
+}

@@ -1,0 +1,85 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glass Calculator - الأقسام</title>
+<style>
+  :root{--bg:#121620;--panel:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.14);--accent:#7dd3fc;--secondary:#34d399;--text:#f8fafc;--dim:#cbd5e1}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Segoe UI",Tahoma,sans-serif;direction:rtl;overflow-x:hidden}
+  .bg{position:fixed;inset:0;z-index:0;background:radial-gradient(circle at 20% 30%,rgba(125,211,252,0.10)0%,transparent 40%),radial-gradient(circle at 80% 70%,rgba(52,211,153,0.09)0%,transparent 40%);background-size:200% 200%;animation:bgm 14s ease infinite;overflow:hidden}
+  @keyframes bgm{0%,100%{background-position:0% 0%}50%{background-position:100% 100%}}
+  header{position:relative;z-index:10;padding:30px 20px 10px;text-align:center}
+  header h1{font-size:2rem;font-weight:900;margin-bottom:6px;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--secondary) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  header p{color:var(--dim);font-size:0.95rem;margin-top:4px}
+  .container{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:20px 20px 110px}
+  .card{background:var(--panel);backdrop-filter:blur(20px)saturate(200%);-webkit-backdrop-filter:blur(20px)saturate(200%);border:1px solid var(--border);border-radius:24px;padding:32px 24px;box-shadow:0 24px 48px rgba(0,0,0,0.45)}
+  .back{display:inline-block;margin-top:24px;color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent);font-size:0.95rem;padding-bottom:2px;transition:0.2s}
+  .back:hover{color:#fff;border-color:#fff}
+  #calc{background:var(--panel);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border:1px solid var(--border);border-radius:20px;padding:22px;max-width:340px;margin:0 auto;box-shadow:0 24px 48px rgba(0,0,0,0.45)}
+  #disp{background:#0f172a;border:1px solid var(--border);border-radius:12px;padding:14px;font-size:1.7rem;text-align:right;color:#fff;margin-bottom:16px;min-height:50px;display:flex;align-items:center;justify-content:flex-end}
+  .keys{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .btn{background:rgba(255,255,255,0.08);border:1px solid var(--border);color:#fff;border-radius:10px;padding:14px;font-size:1rem;cursor:pointer;transition:0.2s}
+  .btn:hover{background:rgba(125,211,252,0.2);color:#fff}
+  .btn.op{color:var(--accent)}
+  .btn.eq{background:var(--accent);color:#0b1120;font-weight:800}
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <header><h1>Glass Calculator</h1><p>مكون من مشروع الأقسام</p></header>
+  <div class="container">
+    <div class="card" style="text-align:center">
+      <div style="font-size:3rem;margin-bottom:16px">🧮</div>
+      <h2 style="font-size:1.6rem;margin-bottom:16px">آلة حاسبة زجاجية</h2>
+      <div id="calc">
+        <div id="disp">0</div>
+        <div class="keys">
+          <button class="btn" data-t="C">C</button>
+          <button class="btn op" data-t="/">÷</button>
+          <button class="btn op" data-t="*">×</button>
+          <button class="btn op" data-t="-">−</button>
+          <button class="btn" data-n="7">7</button>
+          <button class="btn" data-n="8">8</button>
+          <button class="btn" data-n="9">9</button>
+          <button class="btn op" data-t="+">+</button>
+          <button class="btn" data-n="4">4</button>
+          <button class="btn" data-n="5">5</button>
+          <button class="btn" data-n="6">6</button>
+          <button class="btn eq" data-t="=">=</button>
+          <button class="btn" data-n="1">1</button>
+          <button class="btn" data-n="2">2</button>
+          <button class="btn" data-n="3">3</button>
+          <button class="btn" data-n="0" style="grid-column:span 2">0</button>
+          <button class="btn" data-n=".">.</button>
+        </div>
+      </div>
+    </div>
+    <a href="../index.html" class="back">العودة للواجهة الرئيسية</a>
+  </div>
+  <script>
+    var disp=document.getElementById('disp');
+    var cur='0', prev=null, op=null;
+    function up(){disp.textContent=cur;}
+    document.querySelectorAll('.btn').forEach(function(b){
+      b.onclick=function(){
+        var type=b.dataset.n?'n':b.dataset.t?'t':'';
+        var val=b.dataset.n||b.dataset.t;
+        if(b.dataset.t==='C'){cur='0';prev=null;op=null;}
+        else if(type==='n'){
+          if(cur==='0'&&val!=='.')cur=val;else cur+=val;
+        }else if(type==='t'){
+          if(op&&prev!==null){try{cur=String(eval(prev+' '+opMap[op]+' '+cur));}catch(e){}}
+          prev=cur;cur='0';op=val;
+        }else if(b.dataset.t==='='){
+          if(op&&prev!==null){try{cur=String(eval(prev+' '+opMap[op]+' '+cur));}catch(e){}}
+          op=null;prev=null;
+        }
+        up();
+      };
+    });
+    var opMap={'+':'+','-':'-','×':'*','÷':'/'};
+  </script>
+</body>
+</html>

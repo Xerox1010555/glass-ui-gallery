@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>الأقسام — معرض الأقسام الزجاجي</title>
+<style>
+  :root {
+    --bg: #121620;
+    --panel: rgba(255, 255, 255, 0.06);
+    --panel-border: rgba(255, 255, 255, 0.14);
+    --accent: #7dd3fc;      /* أزرق فاتح */
+    --secondary: #34d399;   /* أخضر هادئ */
+    --text: #f8fafc;
+    --text-dim: #cbd5e1;
+    --radius: 30px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    height: 100%;
+    background: var(--bg);
+    color: var(--text);
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    direction: rtl;
+    overflow-x: hidden;
+  }
+
+  /* خلفية متحركة مع نقاط ضوئية */
+  .bg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(125, 211, 252, 0.10) 0%, transparent 40%),
+      radial-gradient(circle at 80% 70%, rgba(52, 211, 153, 0.09) 0%, transparent 40%),
+      radial-gradient(circle at 50% 10%, rgba(139, 92, 246, 0.06) 0%, transparent 35%);
+    background-size: 200% 200%;
+    animation: bgMove 14s ease infinite;
+    overflow: hidden;
+  }
+
+  @keyframes bgMove {
+    0%, 100% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+  }
+
+  .blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(64px);
+    opacity: 0.45;
+    z-index: 1;
+    animation: float 11s ease-in-out infinite;
+  }
+  .b1 { top: 8%; left: 8%; width: 520px; height: 520px; background: var(--accent); animation-delay: 0s; }
+  .b2 { bottom: 12%; right: 12%; width: 470px; height: 470px; background: var(--secondary); animation-delay: -4s; }
+  .b3 { top: 45%; left: 60%; width: 420px; height: 420px; background: #6366f1; animation-delay: -8s; }
+
+  @keyframes float {
+    0%, 100% { transform: translate(0, 0); }
+    33% { transform: translate(30px, -40px); }
+    66% { transform: translate(-20px, 40px); }
+  }
+
+  /* شبكة أنماط background خفيفة */
+  .grid-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    background-image: linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 44px 44px;
+    pointer-events: none;
+  }
+
+  header {
+    position: relative;
+    z-index: 10;
+    padding: 44px 20px 14px;
+    text-align: center;
+  }
+
+  header h1 {
+    font-size: 2.7rem;
+    font-weight: 900;
+    letter-spacing: -1px;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, var(--secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    filter: drop-shadow(0 0 22px rgba(125,211,252,0.3));
+  }
+
+  header p {
+    color: var(--text-dim);
+    font-size: 1.05rem;
+    margin-top: 8px;
+  }
+
+  .container {
+    position: relative;
+    z-index: 10;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 18px 20px 90px;
+  }
+
+  /* بطاقة الزجاج الثلاثية الأبعاد */
+  .cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 30px;
+    justify-items: center;
+  }
+
+  .card {
+    position: relative;
+    width: 300px;
+    height: 440px;
+    background: var(--panel);
+    backdrop-filter: blur(26px) saturate(220%);
+    -webkit-backdrop-filter: blur(26px) saturate(220%);
+    border: 1px solid var(--panel-border);
+    border-radius: var(--radius);
+    box-shadow:
+      0 30px 60px rgba(0,0,0,0.5),
+      inset 0 0 0 1px rgba(255,255,255,0.12),
+      inset 0 1px 0 rgba(255,255,255,0.25);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    cursor: pointer;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    transition:
+      transform 0.12s ease-out,
+      box-shadow 0.45s ease,
+      border-color 0.45s ease,
+      background 0.45s ease;
+    will-change: transform;
+  }
+
+  /* إضاءة أمامية للبطاقة (تأثير الزجاج) */
+  .card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 42%;
+    background: linear-gradient(to bottom,
+      rgba(255,255,255,0.3),
+      rgba(255,255,255,0.04));
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .card:hover {
+    transform: translateY(-16px) scale(1.03);
+    border-color: rgba(125,211,252,0.55);
+    background: rgba(255,255,255,0.09);
+    box-shadow:
+      0 44px 78px rgba(0,0,0,0.55),
+      inset 0 0 0 1px rgba(125,211,252,0.35),
+      inset 0 1px 0 rgba(255,255,255,0.3),
+      0 0 40px rgba(125,211,252,0.15);
+  }
+
+  .card:active {
+    transform: scale(0.96);
+  }
+
+  .card-icon {
+    font-size: 3.4rem;
+    margin-top: 60px;
+    filter: drop-shadow(0 0 20px rgba(125,211,252,0.45));
+    z-index: 3;
+    position: relative;
+  }
+
+  .card-title {
+    margin-top: 26px;
+    font-size: 1.4rem;
+    font-weight: 800;
+    line-height: 1.3;
+    z-index: 3;
+    position: relative;
+    width: 88%;
+  }
+
+  .card-desc {
+    margin-top: 12px;
+    font-size: 0.94rem;
+    color: var(--text-dim);
+    line-height: 1.55;
+    z-index: 3;
+    position: relative;
+    width: 82%;
+    opacity: 0.95;
+  }
+
+  .card-footer {
+    position: absolute;
+    bottom: 24px;
+    width: 88%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 3;
+  }
+
+  .card-tag {
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.9px;
+    text-transform: uppercase;
+    color: var(--accent);
+    padding: 6px 16px;
+    border: 1px solid rgba(125,211,252,0.35);
+    border-radius: 14px;
+    background: rgba(125,211,252,0.10);
+    box-shadow: 0 0 18px rgba(125,211,252,0.18);
+  }
+
+  .card-arrow {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.22);
+    display: grid;
+    place-items: center;
+    font-size: 0.9rem;
+    color: #fff;
+    transition: transform 0.3s ease, background 0.3s ease, box-shadow 0.3s ease;
+  }
+
+  .card:hover .card-arrow {
+    background: var(--accent);
+    color: #0b1120;
+    transform: translateX(-8px);
+    box-shadow: 0 0 24px rgba(125,211,252,0.55);
+  }
+
+  /* إشعار مؤقت */
+  #toast {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    z-index: 1000;
+    background: rgba(15, 23, 31, 0.94);
+    backdrop-filter: blur(14px);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #fff;
+    padding: 14px 20px;
+    border-radius: 16px;
+    box-shadow: 0 24px 48px rgba(0,0,0,0.45);
+    font-size: 0.98rem;
+    transform: translateY(140px);
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.35s ease, opacity 0.35s ease;
+  }
+  #toast.show {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  /* تلميح نسخ المسار */
+  .copy-hint {
+    position: absolute;
+    top: 18px;
+    left: 18px;
+    font-size: 0.7rem;
+    color: rgba(255,255,255,0.55);
+    background: rgba(0,0,0,0.4);
+    padding: 5px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255,255,255,0.1);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+  }
+  .card:hover .copy-hint { opacity: 1; }
+
+  @media (max-width: 640px) {
+    .cards-grid { grid-template-columns: 1fr; gap: 24px; }
+    .card { width: 100%; height: 390px; }
+    header h1 { font-size: 2.1rem; }
+  }
+
+  @media (max-width: 400px) {
+    .card { width: 280px; margin: 0 auto; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="bg"></div>
+  <div class="grid-overlay"></div>
+
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+
+  <header>
+    <h1>الأقسام</h1>
+    <p>اضغط على أي كارت لفتح القسم مباشرة</p>
+  </header>
+
+  <div class="container">
+    <div class="cards-grid" id="grid"></div>
+  </div>
+
+  <div id="toast"></div>
+
+<script>
+  const folders = [
+    // الأقسام القديمة (8)
+    { name: "404 Not Found", icon: "🚫", tag: "أخطاء", desc: "تصميم صفحات خطأ ومظهر الـ 404", path: "404 Not Found" },
+    { name: "Activity Heatmap", icon: "🔥", tag: "عرض بيانات", desc: "خريطة نشاط تفاعلية لعرض البيانات", path: "Activity Heatmap — data display" },
+    { name: "Capsule Nav", icon: "💊", tag: "تنقل", desc: "قائمة تنقل على شكل كبسولة", path: "Capsule Nav — navigation" },
+    { name: "CTA Banner", icon: "🎯", tag: "تسويق", desc: "مكالمات للعمل ولوحات ترويجية", path: "CTA Banner — marketing blocks" },
+    { name: "Dropzone", icon: "📥", tag: "نماذج", desc: "منطقة رفع وإسقاط الملفات", path: "Dropzone — forms" },
+    { name: "KPI Ticker", icon: "📈", tag: "بيانات", desc: "شريط مؤشرات أداء متحرك", path: "KPI Ticker — data display" },
+    { name: "Magnifying Dock", icon: "🔍", tag: "تنقل", desc: "رصيف تكبير تفاعلي", path: "Magnifying Dock — navigation" },
+    { name: "Mobile Sheet Menu", icon: "📱", tag: "تنقل", desc: "قائمة منسدلة للهواتف المحمولة", path: "Mobile Sheet Menu — navigation" },
+
+    // الأقسام الجديدة (10)
+    { name: "3D Header Pro", icon: "🎨", tag: "واجهة", desc: "هيدر ثلاثي الأبعاد احترافي ومتقدم", path: "3D Header Pro" },
+    { name: "Dark Mode Toggle", icon: "🌙", tag: "واجهة", desc: "زر تبديل بين الوضع الليلي والنهاري", path: "Dark Mode Toggle" },
+    { name: "Glass Calculator", icon: "🧮", tag: "أدوات", desc: "آلة حاسبة بواجهة زجاجية شفافة", path: "Glass Calculator" },
+    { name: "Neon Buttons", icon: "⚡", tag: "أزرار", desc: "أزرار نيون متحركة وتأثيرات ضوئية", path: "Neon Buttons" },
+    { name: "Scroll Progress Bar", icon: "📊", tag: "واجهة", desc: "شريط تقدم تفاعلي أثناء التمرير", path: "Scroll Progress Bar" },
+    { name: "Floating Chat", icon: "💬", tag: "دردشة", desc: "نافذة دردشة عائمة على الصفحة", path: "Floating Chat" },
+    { name: "Image Gallery", icon: "🖼️", tag: "عرض", desc: "معرض صور تفاعلي ومتجاوب", path: "Image Gallery" },
+    { name: "Pricing Table", icon: "💰", tag: "تسعير", desc: "جدول أسعار وعروض الاشتراك", path: "Pricing Table" },
+    { name: "Countdown Timer", icon: "⏱️", tag: "أدوات", desc: "مؤقت تنازلي للمناسبات والعروض", path: "Countdown Timer" },
+    { name: "Typing Effect", icon: "⌨️", tag: "نص", desc: "تأثير كتابة آلي للكلمات والنصوص", path: "Typing Effect" },
+  ];
+
+  const grid = document.getElementById("grid");
+  const toast = document.getElementById("toast");
+
+  folders.forEach((f) => {
+    // رابط نسبي لملف index.html جوه المجلد — يشتغل محلياً وعلى أي استضافة
+    const encodedUrl = encodeURI("./" + f.path + "/index.html");
+
+    const card = document.createElement("article");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="copy-hint">المسار: ${f.path}</div>
+      <div class="card-icon" aria-hidden="true">${f.icon}</div>
+      <div class="card-title">${f.name}</div>
+      <div class="card-desc">${f.desc}</div>
+      <div class="card-footer">
+        <span class="card-tag">${f.tag}</span>
+        <span class="card-arrow" aria-hidden="true">→</span>
+      </div>
+    `;
+
+    function openSection() {
+      let opened = false;
+      try {
+        opened = !!window.open(encodedUrl, "_blank");
+      } catch (e) { opened = false; }
+
+      if (!opened) {
+        try { location.href = encodedUrl; } catch (e) {}
+      }
+
+      showToast(opened ? "تم فتح القسم: " + f.name : "تعذر الفتح تلقائياً — المسار مكبوس: " + f.path);
+    }
+
+    card.addEventListener("click", (e) => {
+      if (e.target.closest(".copy-hint")) return;
+      openSection();
+    });
+
+    card.querySelector(".copy-hint").addEventListener("click", (e) => {
+      e.stopPropagation();
+      navigator.clipboard.writeText(absWin).then(() => showToast("تم نسخ المسار: " + f.path));
+    });
+
+    /* تأثير انحراف ثلاثي الأبعاد عند تحريك الماوس */
+    card.addEventListener("mousemove", (e) => {
+      const r = card.getBoundingClientRect();
+      const x = e.clientX - r.left;
+      const y = e.clientY - r.top;
+      const cx = r.width / 2;
+      const cy = r.height / 2;
+      const rotX = ((y - cy) / cy) * -7;
+      const rotY = ((x - cx) / cx) * 7;
+      card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateY(-14px) scale(1.03)`;
+      card.style.transition = "none";
+    });
+
+    card.addEventListener("mouseleave", () => {
+      card.style.transform = "";
+      card.style.transition = "transform 0.45s cubic-bezier(0.23, 1, 0.32, 1)";
+    });
+
+    grid.appendChild(card);
+  });
+
+  function showToast(msg) {
+    toast.textContent = msg;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2600);
+  }
+</script>
+
+</body>
+</html>

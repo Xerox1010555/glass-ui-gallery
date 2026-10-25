@@ -1,0 +1,51 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing Table - الأقسام</title>
+<style>
+  :root{--bg:#121620;--panel:rgba(255,255,255,0.06);--border:rgba(255,255,255,0.14);--accent:#7dd3fc;--secondary:#34d399;--text:#f8fafc;--dim:#cbd5e1}
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;background:var(--bg);color:var(--text);font-family:"Segoe UI",Tahoma,sans-serif;direction:rtl;overflow-x:hidden}
+  .bg{position:fixed;inset:0;z-index:0;background:radial-gradient(circle at 20% 30%,rgba(125,211,252,0.10)0%,transparent 40%),radial-gradient(circle at 80% 70%,rgba(52,211,153,0.09)0%,transparent 40%);background-size:200% 200%;animation:bgm 14s ease infinite;overflow:hidden}
+  @keyframes bgm{0%,100%{background-position:0% 0%}50%{background-position:100% 100%}}
+  header{position:relative;z-index:10;padding:30px 20px 10px;text-align:center}
+  header h1{font-size:2rem;font-weight:900;margin-bottom:6px;background:linear-gradient(135deg,#fff 0%,var(--accent) 50%,var(--secondary) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+  header p{color:var(--dim);font-size:0.95rem;margin-top:4px}
+  .container{position:relative;z-index:10;max-width:900px;margin:0 auto;padding:20px 20px 110px}
+  .card{background:var(--panel);backdrop-filter:blur(20px)saturate(200%);-webkit-backdrop-filter:blur(20px)saturate(200%);border:1px solid var(--border);border-radius:24px;padding:32px 24px;box-shadow:0 24px 48px rgba(0,0,0,0.45)}
+  .back{display:inline-block;margin-top:24px;color:var(--accent);text-decoration:none;border-bottom:1px solid var(--accent);font-size:0.95rem;padding-bottom:2px;transition:0.2s}
+  .back:hover{color:#fff;border-color:#fff}
+</style>
+</head>
+<body>
+  <div class="bg"></div>
+  <header><h1>Pricing Table</h1><p>مكون من مشروع الأقسام</p></header>
+  <div class="container">
+    <div class="card" style="text-align:center">
+      <div style="font-size:3rem;margin-bottom:16px">💰</div>
+      <h2 style="font-size:1.6rem;margin-bottom:12px">جدول الأسعار والاشتراكات</h2>
+      <p style="color:var(--dim);margin-bottom:24px">باقات مميزة تناسب الجميع</p>
+      <div id="pricing" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;max-width:760px;margin:0 auto"></div>
+    </div>
+    <a href="../index.html" class="back">العودة للواجهة الرئيسية</a>
+  </div>
+  <script>
+    var plans=[{name:'أساسي',price:'مجاني',desc:'لبداية بسيطة',features:['دخول للأقسام','دعم أساسي']},{name:'متقدم',price:'99 ريال/شهر',desc:'للمشاريع الناشئة',features:['كل الأقسام','دعم أولوية','تصدير البيانات']},{name:'احترافي',price:'249 ريال/شهر',desc:'للشركات الكبيرة',features:['كل شيء','دعم 24/7','مخصص بالكامل','تحليلات متقدمة']}];
+    var p=document.getElementById('pricing');
+    plans.forEach(function(plan){
+      var card=document.createElement('div');
+      card.style.background='var(--panel)';card.style.backdropFilter='blur(20px)';
+      card.style.WebkitBackdropFilter='blur(20px)';card.style.border='1px solid var(--border)';
+      card.style.borderRadius='20px';card.style.padding='26px 20px';
+      card.style.display='flex';card.style.flexDirection='column';card.style.alignItems='center';
+      card.style.transition='0.3s';
+      card.innerHTML='<div style="font-weight:800;font-size:1.2rem;color:#fff;margin-bottom:10px">'+plan.name+'</div><div style="font-size:1.9rem;font-weight:900;color:var(--accent);margin-bottom:14px">'+plan.price+'</div><div style="font-size:0.85rem;color:var(--dim);margin-bottom:16px;text-align:center">'+plan.desc+'</div><ul style="list-style:none;flex:1;display:flex;flex-direction:column;gap:8px;width:100%">'+plan.features.map(function(f){return '<li style="font-size:0.85rem;color:var(--dim);padding:6px 0;border-bottom:1px solid rgba(255,255,255,0.06)">✓ '+f+'</li>'}).join('')+'</ul><button style="margin-top:14px;background:var(--accent);color:#0b1120;border:none;padding:10px 22px;border-radius:10px;font-weight:800;cursor:pointer">اختر</button>';
+      card.onmouseenter=function(){this.style.borderColor='var(--accent)';this.style.transform='translateY(-4px)'};
+      card.onmouseleave=function(){this.style.borderColor='var(--border)';this.style.transform='translateY(0)'};
+      p.appendChild(card);
+    });
+  </script>
+</body>
+</html>
